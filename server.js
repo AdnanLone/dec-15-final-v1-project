@@ -13,6 +13,12 @@ var _ = require('underscore');
 var generate_token = require('./token/generate_token.js');
 var verify_token = require('./token/verify_token.js');
 var bearerToken = require('express-bearer-token');
+var getFiles = require('./get_files/getFiles.js');
+
+var formidable = require('formidable');
+var fs = require('fs');
+var dir = require('node-dir');
+
 
 
 var googleId = '758299757620-r484urkkrfemnrmq41urash7n0mclt83.apps.googleusercontent.com';
@@ -140,19 +146,56 @@ app.post('/local_login/generate_token', function (req, res) {
 
 //get all files for a specific user
 
-app.post('/users/get_files/username', function (req, res) {
+app.post('/users/get_files/:username', function (req, res) {
 
     var token = req.token;
+    var username =req.params.username;
     verify_token.verify(token).then(function (token_verified) {
 
+        console.log(token_verified.message);
+        res.json (getFiles.getUserFiles(username));
         //get files for that user and return it back
-
-        res.json(token_verified);
+        // res.json(token_verified)
     }).catch(function (err) {
         res.status(401).send(err);
     });
+
 });
 
+
+
+//for uploading files
+app.post('/upload', function(req, res) {
+
+    // create an incoming form object
+    var form = new formidable.IncomingForm();
+
+    // specify that we want to allow the user to upload multiple files in a single request
+    form.multiples = true;
+
+    // store all uploads in the /uploads directory
+    form.uploadDir = path.join(__dirname, '/uploads');
+
+    // every time a file has been uploaded successfully,
+    // rename it to it's orignal name
+    form.on('file', function(field, file) {
+        fs.rename(file.path, path.join(form.uploadDir, file.name));
+    });
+
+    // log any errors that occur
+    form.on('error', function(err) {
+        console.log('An error has occured: \n' + err);
+    });
+
+    // once all the files have been uploaded, send a response to the client
+    form.on('end', function() {
+        res.end('success');
+    });
+
+    // parse the incoming request containing the form data
+    form.parse(req);
+
+});
 
 app.get('/profile',
     require('connect-ensure-login').ensureLoggedIn(),
@@ -163,7 +206,7 @@ app.get('/profile',
 app.get('/logout', function (req, res) {
     req.logout();
     res.redirect('/');
-})
+});
 
 
 app.listen(3000);

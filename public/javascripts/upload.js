@@ -1,66 +1,5 @@
-<p>
-<a href="/logout">Logout</a>
-</p>
-
-
-<p>
-ID: <%= user.id %><br/>
-Username: <%= user.username %><br/>
-Name: <%= user.displayName %><br/>
-<% if (user.emails) { %>
-Email: <%= user.emails[0].value %><br/>
-<% } %>
-</p>
-
-
-
-<p>
-    Test: <%= user.user_name %><br/>
-
-</p>
-
-
-
-  <title>File Upload</title>
-  <link href='https://fonts.googleapis.com/css?family=Raleway' rel='stylesheet' type='text/css'>
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
-  <link src="css/styles.css" rel="stylesheet">
-
-</head>
-<body>
-
-  <div class="container">
-    <div class="row">
-      <div class="col-xs-12">
-        <div class="panel panel-default">
-          <div class="panel-body">
-            <span class="glyphicon glyphicon-cloud-upload"></span>
-            <h2>File Uploader</h2>
-            <div class="progress">
-              <div class="progress-bar" role="progressbar"></div>
-            </div>
-            <input class ="btn btn-lg" id="upload-input" type="file" name="uploads[]" multiple="multiple"></br>
-            </div>
-
-        </div>
-      </div>
-    </div>
-  </div>
-
-
-
-
-
-<ul id="list">
-</ul>
-
-  <script src="https://code.jquery.com/jquery-2.2.0.min.js"></script>
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
-
-</body>
-
-<script>
-$('#upload-input').on('click', function (){
+$('.upload-btn').on('click', function (){
+    $('#upload-input').click();
     $('.progress-bar').text('0%');
     $('.progress-bar').width('0%');
 });
@@ -122,5 +61,3 @@ $('#upload-input').on('change', function(){
 
   }
 });
-</script>
-
