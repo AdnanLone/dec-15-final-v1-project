@@ -20,6 +20,10 @@ Email: <%= user.emails[0].value %><br/>
 </p>
 
 
+<div id="username">
+<%= user.user_name %><br/>
+</div>
+
 
   <title>File Upload</title>
   <link href='https://fonts.googleapis.com/css?family=Raleway' rel='stylesheet' type='text/css'>
@@ -49,8 +53,6 @@ Email: <%= user.emails[0].value %><br/>
 
 
 
-
-
 <ul id="list">
 </ul>
 
@@ -67,7 +69,11 @@ $('#upload-input').on('click', function (){
 
 $('#upload-input').on('change', function(){
 
+    var username = $('#username').text().trim()
+    console.log(username);
+
   var files = $(this).get(0).files;
+
 
   if (files.length > 0){
     // create a FormData object which will be sent as the data payload in the
@@ -79,8 +85,10 @@ $('#upload-input').on('change', function(){
       var file = files[i];
 
       // add the files to formData object for the data payload
-      formData.append('uploads[]', file, file.name);
+      formData.append('uploads[]', file, file.name+'-x-x-'+username);
     }
+
+
 
     $.ajax({
       url: '/upload',

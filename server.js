@@ -18,7 +18,8 @@ var getFiles = require('./get_files/getFiles.js');
 var formidable = require('formidable');
 var fs = require('fs');
 var dir = require('node-dir');
-
+var path = require('path');
+var _str = require('underscore.string');
 
 
 var googleId = '758299757620-r484urkkrfemnrmq41urash7n0mclt83.apps.googleusercontent.com';
@@ -149,11 +150,11 @@ app.post('/local_login/generate_token', function (req, res) {
 app.post('/users/get_files/:username', function (req, res) {
 
     var token = req.token;
-    var username =req.params.username;
+    var username = req.params.username;
     verify_token.verify(token).then(function (token_verified) {
 
         console.log(token_verified.message);
-        res.json (getFiles.getUserFiles(username));
+        res.json(getFiles.getUserFiles(username));
         //get files for that user and return it back
         // res.json(token_verified)
     }).catch(function (err) {
@@ -163,9 +164,9 @@ app.post('/users/get_files/:username', function (req, res) {
 });
 
 
-
 //for uploading files
-app.post('/upload', function(req, res) {
+app.post('/upload', function (req, res) {
+
 
     // create an incoming form object
     var form = new formidable.IncomingForm();
@@ -174,21 +175,34 @@ app.post('/upload', function(req, res) {
     form.multiples = true;
 
     // store all uploads in the /uploads directory
-    form.uploadDir = path.join(__dirname, '/uploads');
+    form.uploadDir = path.join(__dirname +'/uploads', '/');
 
     // every time a file has been uploaded successfully,
     // rename it to it's orignal name
-    form.on('file', function(field, file) {
-        fs.rename(file.path, path.join(form.uploadDir, file.name));
+    form.on('file', function (field, file) {
+
+        console.log(file.name);
+        var username = file.name.split('-x-x-')[1];
+        var fileName = file.name.split('-x-x-')[0].trim();
+        console.log(username);
+        var userDir = form.uploadDir + username;
+
+        if (!fs.existsSync(userDir)) {
+            fs.mkdirSync(userDir);
+        }
+
+        fs.rename(file.path, path.join(userDir, fileName));
+
+
     });
 
     // log any errors that occur
-    form.on('error', function(err) {
+    form.on('error', function (err) {
         console.log('An error has occured: \n' + err);
     });
 
     // once all the files have been uploaded, send a response to the client
-    form.on('end', function() {
+    form.on('end', function () {
         res.end('success');
     });
 
