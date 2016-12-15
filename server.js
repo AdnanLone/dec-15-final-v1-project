@@ -30,7 +30,7 @@ var mysql = require("mysql");
 var con = mysql.createConnection({
     host: "localhost",
     user: "root",
-    password: "",
+    password: "root",
     database: "files"
 });
 
@@ -185,6 +185,9 @@ app.post('/users/get_files/:username', function (req, res) {
                 res.json(values);
             }
         });
+        //
+        // con.end(function (err) {
+        // });
 
         // res.json(getFiles.getUserFiles(username));
         //get files for that user and return it back
@@ -230,7 +233,7 @@ app.post('/users/getsmaller/:size', function (req, res) {
 app.post('/users/getbefore/:time', function (req, res) {
 
     var token = req.token;
-    var time = req.params.size;
+    var time = req.params.time;
     verify_token.verify(token).then(function (token_verified) {
 
         console.log(token_verified.message);
@@ -243,6 +246,9 @@ app.post('/users/getbefore/:time', function (req, res) {
                 res.json(values);
             }
         });
+        //
+        // con.end(function (err) {
+        // });
 
         // res.json(getFiles.getUserFiles(username));
         //get files for that user and return it back
@@ -252,8 +258,6 @@ app.post('/users/getbefore/:time', function (req, res) {
     });
 
 });
-
-
 
 
 var fileDetails = {};
@@ -284,7 +288,7 @@ app.post('/upload', function (req, res) {
         var now = moment();
         console.log(now);
         console.log(file.name);
-        var username = file.name.split('-x-x-')[1];
+        var username = file.name.split('-x-x-')[1].trim();
         var fileName = file.name.split('-x-x-')[0].trim();
         console.log(username);
         var userDir = form.uploadDir + username;
@@ -295,6 +299,12 @@ app.post('/upload', function (req, res) {
 
         fs.rename(file.path, path.join(userDir, fileName));
 
+    
+
+
+        if (_.isNull(username) || _.isUndefined(username)){
+            username = 'oauth';
+        }
 
         fileDetails.user = username;
         fileDetails.filename = fileName;
@@ -332,9 +342,9 @@ app.post('/upload', function (req, res) {
             console.log('Data received from Db:\n');
             console.log(rows);
         });
-
-        con.end(function (err) {
-        });
+        //
+        // con.end(function (err) {
+        // });
         res.end('success');
     });
 
@@ -355,4 +365,4 @@ app.get('/logout', function (req, res) {
 });
 
 
-app.listen(3005);
+app.listen(3000);
