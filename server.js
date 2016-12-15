@@ -20,10 +20,32 @@ var fs = require('fs');
 var dir = require('node-dir');
 var path = require('path');
 var _str = require('underscore.string');
+var moment = require('moment');
+var mysql = require("mysql");
+
+
+//db configuration
+//write in seperate file later
+
+var con = mysql.createConnection({
+    host: "localhost",
+    user: "root",
+    password: "",
+    database: "files"
+});
+
+con.connect(function (err) {
+    if (err) {
+        console.log('Error connecting to Db');
+        return;
+    }
+    console.log('Connection established');
+});
 
 
 var googleId = '758299757620-r484urkkrfemnrmq41urash7n0mclt83.apps.googleusercontent.com';
 var googleSecret = 'QZNUUmJ2B7mWOMXTBV3UWfRB';
+
 
 //for google-oauth2
 passport.use(new Strategy({
@@ -154,7 +176,17 @@ app.post('/users/get_files/:username', function (req, res) {
     verify_token.verify(token).then(function (token_verified) {
 
         console.log(token_verified.message);
-        res.json(getFiles.getUserFiles(username));
+
+        con.query('SELECT filename from b where user = ?', [username], function (err, values) {
+            if (err) {
+                res.status(401).send(err);
+            } else {
+                console.log(values);
+                res.json(values);
+            }
+        });
+
+        // res.json(getFiles.getUserFiles(username));
         //get files for that user and return it back
         // res.json(token_verified)
     }).catch(function (err) {
@@ -163,6 +195,68 @@ app.post('/users/get_files/:username', function (req, res) {
 
 });
 
+
+//get files smaller than a particular size
+
+app.post('/users/getsmaller/:size', function (req, res) {
+
+    var token = req.token;
+    var size = req.params.size;
+    verify_token.verify(token).then(function (token_verified) {
+
+        console.log(token_verified.message);
+
+        con.query('SELECT filename from b where  filesize < ?', [size], function (err, values) {
+            if (err) {
+                res.status(401).send(err);
+            } else {
+                console.log(values);
+                res.json(values);
+            }
+        });
+
+        // res.json(getFiles.getUserFiles(username));
+        //get files for that user and return it back
+        // res.json(token_verified)
+    }).catch(function (err) {
+        res.status(401).send(err);
+    });
+
+});
+
+
+//get files smaller than a particular size
+
+app.post('/users/getbefore/:time', function (req, res) {
+
+    var token = req.token;
+    var time = req.params.size;
+    verify_token.verify(token).then(function (token_verified) {
+
+        console.log(token_verified.message);
+
+        con.query('SELECT filename from b where  epochTimestamp < ?', [time], function (err, values) {
+            if (err) {
+                res.status(401).send(err);
+            } else {
+                console.log(values);
+                res.json(values);
+            }
+        });
+
+        // res.json(getFiles.getUserFiles(username));
+        //get files for that user and return it back
+        // res.json(token_verified)
+    }).catch(function (err) {
+        res.status(401).send(err);
+    });
+
+});
+
+
+
+
+var fileDetails = {};
 
 //for uploading files
 app.post('/upload', function (req, res) {
@@ -175,12 +269,20 @@ app.post('/upload', function (req, res) {
     form.multiples = true;
 
     // store all uploads in the /uploads directory
-    form.uploadDir = path.join(__dirname +'/uploads', '/');
+    form.uploadDir = path.join(__dirname + '/uploads', '/');
 
     // every time a file has been uploaded successfully,
     // rename it to it's orignal name
     form.on('file', function (field, file) {
 
+        var fileSize = file.size;
+        console.log(fileSize);
+
+        var currenttimestamp = Date.now();
+        console.log("current epoch timestamp is: " + currenttimestamp);
+
+        var now = moment();
+        console.log(now);
         console.log(file.name);
         var username = file.name.split('-x-x-')[1];
         var fileName = file.name.split('-x-x-')[0].trim();
@@ -194,6 +296,12 @@ app.post('/upload', function (req, res) {
         fs.rename(file.path, path.join(userDir, fileName));
 
 
+        fileDetails.user = username;
+        fileDetails.filename = fileName;
+        fileDetails.fileSize = fileSize;
+        fileDetails.epochTimestamp = currenttimestamp;
+
+
     });
 
     // log any errors that occur
@@ -203,6 +311,30 @@ app.post('/upload', function (req, res) {
 
     // once all the files have been uploaded, send a response to the client
     form.on('end', function () {
+        console.log(' upload success');
+        console.log(fileDetails);
+
+        con.query('INSERT INTO b SET ?', fileDetails, function (err, res) {
+            if (err) {
+                console.log(err)
+            }
+
+            console.log("insert success\n");
+            console.log("******************");
+            // console.log('Last insert ID:', res.insertId);
+        });
+
+        con.query('SELECT * FROM b', function (err, rows) {
+            if (err) {
+                console.log(err);
+            }
+
+            console.log('Data received from Db:\n');
+            console.log(rows);
+        });
+
+        con.end(function (err) {
+        });
         res.end('success');
     });
 
@@ -223,4 +355,4 @@ app.get('/logout', function (req, res) {
 });
 
 
-app.listen(3000);
+app.listen(3005);
