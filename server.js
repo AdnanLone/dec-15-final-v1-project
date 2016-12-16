@@ -52,6 +52,8 @@ passport.use(new Strategy({
         clientID: googleId || process.env.CLIENT_ID,
         clientSecret: googleSecret || process.env.CLIENT_SECRET,
         callbackURL: 'http://localhost:3000/login/google/callback'
+
+
     },
     function (accessToken, refreshToken, profile, cb) {
         return cb(null, profile);
@@ -66,10 +68,15 @@ passport.use(new LocalStrategy(function (username, password, done) {
         return (u.user_name.toLowerCase() === username.toLowerCase() && u.password.toLowerCase() === password.toLowerCase() );
     });
 
+
     if (!user) {
 
         return done(null, false, {message: 'Username or Password incorrect'});
     } else {
+
+        console.log(user);
+        user.displayName=user.user_name;
+        console.log(user);
         return done(null, user);
     }
 

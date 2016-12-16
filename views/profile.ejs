@@ -14,15 +14,9 @@ Email: <%= user.emails[0].value %><br/>
 
 
 
-<p>
-    Test: <%= user.user_name %><br/>
-  Test: <%= user.displayName %><br/>
-
-</p>
-
-
+<p>Welcome </p>
 <div id="username">
-<%= user.user_name %><br/>
+<%= user.displayName %><br/>
 </div>
 
 
@@ -61,6 +55,9 @@ Email: <%= user.emails[0].value %><br/>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
 
 </body>
+
+
+
 
 <script>
 $('#upload-input').on('click', function (){
@@ -132,4 +129,5 @@ $('#upload-input').on('change', function(){
   }
 });
 </script>
+
 
