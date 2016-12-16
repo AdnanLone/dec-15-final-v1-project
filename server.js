@@ -206,6 +206,36 @@ app.post('/users/get_files/:username', function (req, res) {
 
 });
 
+//get files for all users
+
+app.get('/users/get_files/all', function (req, res) {
+
+    var token = req.token;
+
+    verify_token.verify(token).then(function (token_verified) {
+
+        console.log(token_verified.message);
+
+        con.query('SELECT * from b order by user',  function (err, values) {
+            if (err) {
+                res.status(401).send(err);
+            } else {
+                console.log(values);
+                res.json(values);
+            }
+        });
+        //
+        // con.end(function (err) {
+        // });
+
+        // res.json(getFiles.getUserFiles(username));
+        //get files for that user and return it back
+        // res.json(token_verified)
+    }).catch(function (err) {
+        res.status(401).send(err);
+    });
+
+});
 
 //get files smaller than a particular size
 
@@ -310,7 +340,7 @@ app.post('/upload', function (req, res) {
             username = 'oauth';
         }
 
-        
+
         fileDetails.user = username;
         fileDetails.filename = fileName;
         fileDetails.filesize = fileSize;
