@@ -22,6 +22,7 @@ var path = require('path');
 var _str = require('underscore.string');
 var moment = require('moment');
 var mysql = require("mysql");
+var dir = require('node-dir');
 
 
 //db configuration
@@ -75,7 +76,7 @@ passport.use(new LocalStrategy(function (username, password, done) {
     } else {
 
         console.log(user);
-        user.displayName=user.user_name;
+        user.displayName = user.user_name;
         console.log(user);
         return done(null, user);
     }
@@ -306,10 +307,8 @@ app.post('/upload', function (req, res) {
 
         fs.rename(file.path, path.join(userDir, fileName));
 
-    
 
-
-        if (_.isNull(username) || _.isUndefined(username)){
+        if (_.isNull(username) || _.isUndefined(username)) {
             username = 'oauth';
         }
 
@@ -370,6 +369,26 @@ app.get('/logout', function (req, res) {
     req.logout();
     res.redirect('/');
 });
+
+
+app.get('/getFileList/:username', function (req, res) {
+
+    var dir_username = req.params.username;
+
+    var location = __dirname + '/uploads/' + dir_username + '/';
+    console.log(location);
+
+    dir.files(location, function (err, files) {
+        if (!err) {
+            console.log(files);
+            res.json([files]);
+        }else {
+            console.log(err);
+        }
+    });
+});
+
+
 
 
 app.listen(3000);
