@@ -246,7 +246,7 @@ app.post('/users/getbefore/:time', function (req, res) {
 
         console.log(token_verified.message);
 
-        con.query('SELECT filename from b where  epochTimestamp < ?', [time], function (err, values) {
+        con.query('SELECT filename from b where  epochtimestamp < ?', [time], function (err, values) {
             if (err) {
                 res.status(401).send(err);
             } else {
@@ -290,8 +290,6 @@ app.post('/upload', function (req, res) {
         var fileSize = file.size;
         console.log(fileSize);
 
-        var currenttimestamp = Date.now();
-        console.log("current epoch timestamp is: " + currenttimestamp);
 
         var now = moment();
         console.log(now);
@@ -312,10 +310,11 @@ app.post('/upload', function (req, res) {
             username = 'oauth';
         }
 
+        
         fileDetails.user = username;
         fileDetails.filename = fileName;
-        fileDetails.fileSize = fileSize;
-        fileDetails.epochTimestamp = currenttimestamp;
+        fileDetails.filesize = fileSize;
+        fileDetails.epochtimestamp = Math.floor(new Date().getTime() / 1000);
 
 
     });
@@ -382,13 +381,20 @@ app.get('/getFileList/:username', function (req, res) {
         if (!err) {
             console.log(files);
             res.json([files]);
-        }else {
+        } else {
             console.log(err);
         }
     });
 });
 
 
+app.get('/test', function (req, res) {
+    // res.json(moment().format("YYYYMMDDHHmm"));
+
+
+    res.json(Math.floor(new Date().getTime() / 1000)
+    );
+});
 
 
 app.listen(3000);
