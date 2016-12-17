@@ -206,6 +206,23 @@ app.post('/users/get_files/:username', function (req, res) {
 
 });
 
+
+//get files for all users
+
+app.get('/users/getallfiles', function (req, res) {
+
+    con.query('SELECT * from b order by user', function (err, values) {
+        if (err) {
+            res.status(401).send(err);
+        } else {
+            console.log(values);
+            res.json(values);
+        }
+    });
+
+});
+
+
 //get files for all users
 
 app.get('/users/get_files/all', function (req, res) {
@@ -216,7 +233,7 @@ app.get('/users/get_files/all', function (req, res) {
 
         console.log(token_verified.message);
 
-        con.query('SELECT * from b order by user',  function (err, values) {
+        con.query('SELECT * from b order by user', function (err, values) {
             if (err) {
                 res.status(401).send(err);
             } else {
@@ -224,13 +241,6 @@ app.get('/users/get_files/all', function (req, res) {
                 res.json(values);
             }
         });
-        //
-        // con.end(function (err) {
-        // });
-
-        // res.json(getFiles.getUserFiles(username));
-        //get files for that user and return it back
-        // res.json(token_verified)
     }).catch(function (err) {
         res.status(401).send(err);
     });
